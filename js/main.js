@@ -10,24 +10,110 @@ game_states.main = function() {};
 game_states.main.prototype = {
 	preload: function() {
 		// Load images
-		this.game.load.image('background', 'assets/img/background.png');
 		this.game.load.image('particle', 'assets/img/particle.png');
 		this.game.load.image('platform', 'assets/img/platform.png');
+		this.game.load.spritesheet('button', 'assets/img/buttons.png', 48, 48);
 	},
 
 	create: function() {
-		this.game.add.sprite(0, 0, 'background');
+		// Light-grey background, GUI buttons in top-left corner
+		this.game.stage.backgroundColor = '#D4D4D4';
+		this.create_gui();
 
+		// Game tools
+		this.Tool_e = {
+			PLATFORM : 0,
+			SPAWNER : 1,
+			MAGNET : 2,
+			ERASER : 3
+		};
+		this.current_tool = this.Tool_e.PLATFORM;
+
+		// Click-and-drag info
+		this.is_dragging = false;
+		this.drag_x = this.drag_y = 0;
+
+		// Handle click events
+		this.game.input.onDown.add(this.touch_start, this);
+		this.game.input.onUp.add(this.touch_end, this);
+
+		// Game object groups
 		this.game.platforms = this.game.add.group();
 		this.game.particles = this.game.add.group();
-
-		this.game.platforms.add(Platform.create(this.game, 300, 300, 400, 500));
-		this.game.platforms.add(Platform.create(this.game, 400, 500, 600, 400));
-		this.game.particles.add(Particle.create(this.game, 300, 100));
 	},
 
 	update: function() {
 		// Nothing to do (yet)
+	},
+
+	create_gui: function() {
+		// Shadow beneath currently-active GUI buttom
+		this.tool_shadow = this.game.add.sprite(0, 0, 'button', 4);
+		this.tool_shadow.scale.setTo(0.5, 0.5);
+
+		// Create a GUI button with callback for each tool; scale 50%
+		this.game.add.button(0, 0, 'button', this.button_platform, this, 0, 0, 0).scale.setTo(0.5, 0.5);
+		this.game.add.button(30, 0, 'button', this.button_spawner, this, 1, 1, 1).scale.setTo(0.5, 0.5);
+		this.game.add.button(60, 0, 'button', this.button_magnet, this, 2, 2, 2).scale.setTo(0.5, 0.5);
+		this.game.add.button(90, 0, 'button', this.button_eraser, this, 3, 3, 3).scale.setTo(0.5, 0.5);
+	},
+
+	touch_start: function(pointer) {
+		// Avoid stealing button clicks (hack-ish)
+		if(pointer.x < 114 && pointer.y < 24) {
+			return;
+		}
+
+		switch(this.current_tool) {
+			case this.Tool_e.PLATFORM:
+			case this.Tool_e.SPAWNER:
+				if(!this.is_dragging) {
+					this.drag_x = pointer.x;
+					this.drag_y = pointer.y;
+					this.is_dragging = true;
+				}
+				break;
+			case this.Tool_e.MAGNET:
+				break;
+			case this.Tool_e.ERASER:
+				break;
+		}
+	},
+
+	touch_end: function(pointer) {
+		switch(this.current_tool) {
+			case this.Tool_e.PLATFORM:
+				break;
+			case this.Tool_e.SPAWNER:
+				break;
+			case this.Tool_e.MAGNET:
+			case this.Tool_e.ERASER:
+				// Nothing to do
+				break;
+		}
+	},
+
+	button_platform: function() {
+		this.set_tool(this.Tool_e.PLATFORM);
+	},
+
+	button_spawner: function() {
+		this.set_tool(this.Tool_e.SPAWNER);
+	},
+
+	button_magnet: function() {
+		this.set_tool(this.Tool_e.MAGNET);
+	},
+
+	button_eraser: function() {
+		this.set_tool(this.Tool_e.ERASER);
+	},
+
+	set_tool: function(tool) {
+		this.current_tool = tool;
+		// Tween button shadow sprite to correct position
+		this.game.add.tween(this.tool_shadow).to({x: 0 + tool * 30}, 500,
+				Phaser.Easing.Exponential.Out, true);
 	}
 };
 

@@ -12,6 +12,7 @@ game_states.main.prototype = {
 		// Load images
 		this.game.load.image('particle', 'assets/img/particle.png');
 		this.game.load.image('platform', 'assets/img/platform.png');
+		this.game.load.image('spawner', 'assets/img/spawner.png');
 		this.game.load.spritesheet('button', 'assets/img/buttons.png', 48, 48);
 	},
 
@@ -40,6 +41,7 @@ game_states.main.prototype = {
 		// Game object groups
 		this.game.platforms = this.game.add.group();
 		this.game.particles = this.game.add.group();
+		this.game.spawners = this.game.add.group();
 	},
 
 	update: function() {
@@ -67,11 +69,9 @@ game_states.main.prototype = {
 		switch(this.current_tool) {
 			case this.Tool_e.PLATFORM:
 			case this.Tool_e.SPAWNER:
-				if(!this.is_dragging) {
-					this.drag_x = pointer.x;
-					this.drag_y = pointer.y;
-					this.is_dragging = true;
-				}
+				this.drag_x = pointer.x;
+				this.drag_y = pointer.y;
+				this.is_dragging = true;
 				break;
 			case this.Tool_e.MAGNET:
 				break;
@@ -81,16 +81,28 @@ game_states.main.prototype = {
 	},
 
 	touch_end: function(pointer) {
+		// Avoid stealing button clicks (hack-ish)
+		if(!this.is_dragging) {
+			return;
+		}
+
 		switch(this.current_tool) {
 			case this.Tool_e.PLATFORM:
+				this.game.platforms.add(Platform.create(this.game,
+						this.drag_x, this.drag_y, pointer.x, pointer.y));
 				break;
 			case this.Tool_e.SPAWNER:
+				var rotation = Math.atan2(pointer.y - this.drag_y,
+						pointer.x - this.drag_x);
+				this.game.spawners.add(Spawner.create(this.game,
+						this.drag_x, this.drag_y, rotation));
 				break;
 			case this.Tool_e.MAGNET:
 			case this.Tool_e.ERASER:
 				// Nothing to do
 				break;
 		}
+		this.is_dragging = false;
 	},
 
 	button_platform: function() {

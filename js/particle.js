@@ -6,12 +6,14 @@ function Particle(game, x, y) {
 	// Inherit from Phaser.Sprite
 	Phaser.Sprite.call(this, game, x, y, 'particle');
 
-	// Mid-handle sprite and resize the image
+	// Mid-handle and resize the sprite
 	this.anchor.setTo(0.5, 0.5);
 	this.scale.setTo(0.5,0.5);
 
-	this.vx = 0;
-	this.vy = 0;
+	// Physics properties
+	this.vx = this.vy = 0;
+
+	this.reposition(x, y, 0, 0);
 }
 
 
@@ -49,10 +51,8 @@ Particle.prototype.update = function() {
 			// Complete the movement to the platform
 			this.x = point.x;
 			this.y = point.y;
-			// Hack to (mostly) fix falling through cracks
-			if(Math.abs(this.vy) < 0.25) {
-				this.y -= Math.abs(this.vy);
-			}
+			// Hack to make falling through cracks more rare
+			this.y -= 1;
 		}
 	}, this);
 
@@ -67,13 +67,21 @@ Particle.prototype.update = function() {
 };
 
 
+/* Position a Particle somewhere and update internal state */
+Particle.prototype.reposition = function(x, y, vx, vy) {
+	this.x = x;
+	this.y = y;
+	this.vx = vx;
+	this.vx = vx;
+};
+
+
 /* Returns a new or recycled Particle instance */
 Particle.create = function(game, x, y) {
 	var p = game.particles.getFirstExists(false);
 	if(p) {
 		p.revive();
-		this.vx = 0;
-		this.vy = 0;
+		p.reposition(x, y, 0, 0);
 	} else {
 		p = new Particle(game, x, y);
 	}

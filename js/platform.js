@@ -46,3 +46,16 @@ Platform.prototype.reposition = function(x0, y0, x1, y1) {
 	this.rotation = rotation;
 	this.scale.setTo(length / 100, 1);
 };
+
+
+/* Returns a new or recycled Platform instance */
+Platform.create = function(game, x0, y0, x1, y1) {
+	var p = game.platforms.getFirstExists(false);
+	if(p) {
+		p.revive();
+		p.reposition(x0, y0, x1, y1);
+	} else {
+		p = new Platform(game, x0, y0, x1, y1);
+	}
+	return p;
+}

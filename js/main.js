@@ -21,9 +21,9 @@ game_states.main.prototype = {
 		this.game.platforms = this.game.add.group();
 		this.game.particles = this.game.add.group();
 
-		this.game.platforms.add(new Platform(this.game, 300, 300, 400, 500));
-		this.game.platforms.add(new Platform(this.game, 400, 500, 600, 400));
-		this.game.particles.add(new Particle(this.game, 300, 100));
+		this.game.platforms.add(Platform.create(this.game, 300, 300, 400, 500));
+		this.game.platforms.add(Platform.create(this.game, 400, 500, 600, 400));
+		this.game.particles.add(Particle.create(this.game, 300, 100));
 	},
 
 	update: function() {

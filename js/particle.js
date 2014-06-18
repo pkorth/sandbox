@@ -65,3 +65,17 @@ Particle.prototype.update = function() {
 		this.destroy();
 	}
 };
+
+
+/* Returns a new or recycled Particle instance */
+Particle.create = function(game, x, y) {
+	var p = game.particles.getFirstExists(false);
+	if(p) {
+		p.revive();
+		this.vx = 0;
+		this.vy = 0;
+	} else {
+		p = new Particle(game, x, y);
+	}
+	return p;
+}

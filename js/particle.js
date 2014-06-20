@@ -38,7 +38,7 @@ Particle.prototype.update = function() {
 	this.vy *= (1 - Particle.air_resistance);
 
 	// Collide with Platform?
-	this.game.platforms.forEach(function(p) {
+	this.game.platforms.forEachExists(function(p) {
 		var point = segments_intersect(this.x, this.y, this.x + this.vx,
 				this.y + this.vy, p.x0, p.y0, p.x1, p.y1);
 		if(point !== null) {

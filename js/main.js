@@ -76,6 +76,7 @@ game_states.main.prototype = {
 			case this.Tool_e.MAGNET:
 				break;
 			case this.Tool_e.ERASER:
+				this.erase_at(pointer.x, pointer.y);
 				break;
 		}
 	},
@@ -103,6 +104,35 @@ game_states.main.prototype = {
 				break;
 		}
 		this.is_dragging = false;
+	},
+
+	erase_at: function(x, y) {
+		// Cap the max distance away to erase an object at
+		var closest_obj = null;
+		var closest_dist = 30;
+
+		// Check platforms (segment, left point, right point)
+		this.game.platforms.forEachExists(function(p) {
+			var dist = point_to_segment(x, y, p.x0, p.y0, p.x1, p.y1);
+			if(dist < closest_dist) {
+				closest_dist = dist;
+				closest_obj = p;
+			}
+		}, this);
+
+		// Check spawners
+		this.game.spawners.forEachExists(function(s) {
+			var dist = point_to_point(x, y, s.x, s.y);
+			if(dist < closest_dist) {
+				closest_dist = dist;
+				closest_obj = s;
+			}
+		}, this);
+
+		// Do we have a nearby object to erase?
+		if(closest_obj !== null) {
+			closest_obj.kill();
+		}
 	},
 
 	button_platform: function() {
@@ -155,6 +185,45 @@ function segments_intersect(ax0, ay0, ax1, ay1, bx0, by0, bx1, by1) {
 		// No collision; return null
 		return null;
 	}
+}
+
+
+/*
+Determine distance from a point to a line segment
+*/
+function point_to_segment(ax, ay, bx0, by0, bx1, by1) {
+	var length_sqr = point_to_point_sqr(bx0, by0, bx1, by1);
+	var perc = ((ax-bx0) * (bx1-bx0) + (ay-by0) * (by1-by0)) / length_sqr;
+	if(perc < 0) {
+		return point_to_point(ax, ay, bx0, by0);
+	} else if(perc > 1) {
+		return point_to_point(ax, ay, bx1, by1);
+	} else {
+		var tx, ty;
+		tx = bx0 + perc * (bx1-bx0);
+		ty = by0 + perc * (by1-by0);
+		return point_to_point(ax, ay, tx, ty);
+	}
+}
+
+
+/*
+Determine distance from a point to a point
+*/
+function point_to_point(ax, ay, bx, by) {
+	return Math.sqrt(point_to_point_sqr(ax, ay, bx, by));
+}
+
+
+/*
+Determine distance from a point to a point, squared (helper function)
+*/
+function point_to_point_sqr(ax, ay, bx, by) {
+	var dist_x, dist_y;
+
+	dist_x = ax - bx;
+	dist_y = ay - by;
+	return dist_x*dist_x + dist_y*dist_y;
 }
 
 

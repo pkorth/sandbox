@@ -18,6 +18,10 @@ function Spawner(game, x, y, angle) {
 	// Physics properties
 	this.shoot_vx = this.shoot_vy = 0;
 
+	// Event callbacks
+	this.events.onKilled.add(this.callback_onKilled, this);
+	this.events.onRevived.add(this.callback_onRevived, this);
+
 	this.reposition(x, y, angle);
 }
 
@@ -59,6 +63,19 @@ Spawner.prototype.shoot = function() {
 	p.vx = this.shoot_vx * game.rnd.realInRange(1 - Spawner.spread, 1 + Spawner.spread);
 	p.vy = this.shoot_vy * game.rnd.realInRange(1 - Spawner.spread, 1 + Spawner.spread);
 	this.game.particles.add(p);
+}
+
+
+/* Callback when a Spawner is killed (erased). Stop shooting Particles */
+Spawner.prototype.callback_onKilled = function() {
+	this.timer.stop();
+}
+
+
+/* Callback when a Spawner is revived (from create()). Resume shooting Partiles */
+Spawner.prototype.callback_onRevived = function() {
+	this.timer.loop(Spawner.timer_ms, this.shoot, this);
+	this.timer.start();
 }
 
 

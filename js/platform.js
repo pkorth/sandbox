@@ -43,6 +43,8 @@ Platform.prototype.reposition = function(x0, y0, x1, y1) {
 	this.sin = Math.sin(rotation);
 
 	// Update sprite
+	this.x = x0;
+	this.y = y0;
 	this.rotation = rotation;
 	this.scale.setTo(length / 100, 0.5);
 };

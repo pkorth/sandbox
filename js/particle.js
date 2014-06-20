@@ -38,9 +38,9 @@ Particle.prototype.update = function() {
 	this.vy *= (1 - Particle.air_resistance);
 
 	// Collide with Platform?
+	var movement = {x0: this.x, y0: this.y, x1: this.x + this.vx, y1: this.y + this.vy};
 	this.game.platforms.forEachExists(function(p) {
-		var point = segments_intersect(this.x, this.y, this.x + this.vx,
-				this.y + this.vy, p.x0, p.y0, p.x1, p.y1);
+		var point = segments_intersect(movement, p);
 		if(point !== null) {
 			// Calculate resultant velocity
 			var vx_tmp = p.cos*this.vx + p.sin*this.vy;

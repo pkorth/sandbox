@@ -76,7 +76,7 @@ game_states.main.prototype = {
 			case this.Tool_e.MAGNET:
 				break;
 			case this.Tool_e.ERASER:
-				this.erase_at(pointer.x, pointer.y);
+				this.erase_at(pointer);
 				break;
 		}
 	},
@@ -106,14 +106,15 @@ game_states.main.prototype = {
 		this.is_dragging = false;
 	},
 
-	erase_at: function(x, y) {
+	// Expects point {x, y}
+	erase_at: function(pos) {
 		// Cap the max distance away to erase an object at
 		var closest_obj = null;
 		var closest_dist = 30;
 
 		// Check platforms (segment, left point, right point)
 		this.game.platforms.forEachExists(function(p) {
-			var dist = point_to_segment(x, y, p.x0, p.y0, p.x1, p.y1);
+			var dist = point_to_segment(pos, p);
 			if(dist < closest_dist) {
 				closest_dist = dist;
 				closest_obj = p;
@@ -122,7 +123,7 @@ game_states.main.prototype = {
 
 		// Check spawners
 		this.game.spawners.forEachExists(function(s) {
-			var dist = point_to_point(x, y, s.x, s.y);
+			var dist = point_to_point(pos, s);
 			if(dist < closest_dist) {
 				closest_dist = dist;
 				closest_obj = s;
@@ -158,73 +159,6 @@ game_states.main.prototype = {
 				Phaser.Easing.Exponential.Out, true);
 	}
 };
-
-
-/*
-Determine if line segments a0-a1 and b0-b1 intersect. If so, return the point of
-intersection. Else, return null.
-*/
-function segments_intersect(ax0, ay0, ax1, ay1, bx0, by0, bx1, by1) {
-	var segAx, segAy, segBx, segBy;
-	var s, t;
-
-	// Segment lengths
-	segAx = ax1 - ax0;
-	segAy = ay1 - ay0;
-	segBx = bx1 - bx0;
-	segBy = by1 - by0;
-
-	// Magic
-	s = (-segAy * (ax0 - bx0) + segAx * (ay0 - by0)) / (-segBx * segAy + segAx * segBy);
-	t = ( segBx * (ay0 - by0) - segBy * (ax0 - bx0)) / (-segBx * segAy + segAx * segBy);
-
-	if(s >= 0 && s <= 1 && t >= 0 && t <= 1) {
-		// Collision; return point of intersection
-		return {x: ax0 + (t * segAx), y: ay0 + (t * segAy)};
-	} else {
-		// No collision; return null
-		return null;
-	}
-}
-
-
-/*
-Determine distance from a point to a line segment
-*/
-function point_to_segment(ax, ay, bx0, by0, bx1, by1) {
-	var length_sqr = point_to_point_sqr(bx0, by0, bx1, by1);
-	var perc = ((ax-bx0) * (bx1-bx0) + (ay-by0) * (by1-by0)) / length_sqr;
-	if(perc < 0) {
-		return point_to_point(ax, ay, bx0, by0);
-	} else if(perc > 1) {
-		return point_to_point(ax, ay, bx1, by1);
-	} else {
-		var tx, ty;
-		tx = bx0 + perc * (bx1-bx0);
-		ty = by0 + perc * (by1-by0);
-		return point_to_point(ax, ay, tx, ty);
-	}
-}
-
-
-/*
-Determine distance from a point to a point
-*/
-function point_to_point(ax, ay, bx, by) {
-	return Math.sqrt(point_to_point_sqr(ax, ay, bx, by));
-}
-
-
-/*
-Determine distance from a point to a point, squared (helper function)
-*/
-function point_to_point_sqr(ax, ay, bx, by) {
-	var dist_x, dist_y;
-
-	dist_x = ax - bx;
-	dist_y = ay - by;
-	return dist_x*dist_x + dist_y*dist_y;
-}
 
 
 /* Initialize Phaser framework and start game */

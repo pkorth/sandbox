@@ -8,7 +8,7 @@ function Particle(game, x, y) {
 
 	// Mid-handle and resize the sprite
 	this.anchor.setTo(0.5, 0.5);
-	this.scale.setTo(0.5,0.5);
+	this.scale.setTo(0.25,0.25);
 
 	// Physics properties
 	this.vx = this.vy = 0;

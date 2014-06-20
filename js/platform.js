@@ -44,7 +44,7 @@ Platform.prototype.reposition = function(x0, y0, x1, y1) {
 
 	// Update sprite
 	this.rotation = rotation;
-	this.scale.setTo(length / 100, 1);
+	this.scale.setTo(length / 100, 0.5);
 };
 
 

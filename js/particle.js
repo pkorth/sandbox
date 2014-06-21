@@ -56,6 +56,23 @@ Particle.prototype.update = function() {
 		}
 	}, this);
 
+	// Attracted to magnet? "Arcade" physics
+	this.game.magnets.forEachExists(function(m) {
+		// Distance
+		var dx = this.x - m.x;
+		var dy = this.y - m.y;
+		var dist = point_to_point(this, m);
+		// Gravity
+		var dist_mult = 1 - (dist / Magnet.force_dist);
+		if(dist_mult < 0) {
+			return;
+		}
+		// Effect
+		var angle = Math.atan2(dy, dx) + Math.PI;
+		this.vx += Math.cos(angle) * Magnet.force_mult * dist_mult;
+		this.vy += Math.sin(angle) * Magnet.force_mult * dist_mult;
+	}, this);
+
 	// Update position
 	this.x += this.vx;
 	this.y += this.vy;

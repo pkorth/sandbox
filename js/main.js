@@ -13,6 +13,7 @@ game_states.main.prototype = {
 		this.game.load.image('particle', 'assets/img/particle.png');
 		this.game.load.image('platform', 'assets/img/platform.png');
 		this.game.load.image('spawner', 'assets/img/spawner.png');
+		this.game.load.image('magnet', 'assets/img/magnet.png');
 		this.game.load.spritesheet('button', 'assets/img/buttons.png', 48, 48);
 	},
 
@@ -42,6 +43,7 @@ game_states.main.prototype = {
 		this.game.platforms = this.game.add.group();
 		this.game.particles = this.game.add.group();
 		this.game.spawners = this.game.add.group();
+		this.game.magnets = this.game.add.group();
 	},
 
 	update: function() {
@@ -74,6 +76,7 @@ game_states.main.prototype = {
 				this.is_dragging = true;
 				break;
 			case this.Tool_e.MAGNET:
+				this.game.magnets.add(Magnet.create(this.game, pointer.x, pointer.y));
 				break;
 			case this.Tool_e.ERASER:
 				this.erase_at(pointer);
@@ -127,6 +130,15 @@ game_states.main.prototype = {
 			if(dist < closest_dist) {
 				closest_dist = dist;
 				closest_obj = s;
+			}
+		}, this);
+
+		// Check magnets
+		this.game.magnets.forEachExists(function(m) {
+			var dist = point_to_point(pos, m);
+			if(dist < closest_dist) {
+				closest_dist = dist;
+				closest_obj = m;
 			}
 		}, this);
 

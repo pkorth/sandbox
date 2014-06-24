@@ -174,6 +174,7 @@ game_states.main.prototype = {
 
 
 /* Initialize Phaser framework and start game */
-var game = new Phaser.Game(800, 600, Phaser.AUTO, 'gameDiv');
+var game_size = {x: window.innerWidth, y:window.innerHeight};
+var game = new Phaser.Game(game_size.x, game_size.y, Phaser.AUTO, 'gameDiv');
 game.state.add('main', game_states.main);
 game.state.start('main');
